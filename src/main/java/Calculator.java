@@ -13,10 +13,10 @@ public class Calculator implements ActionListener {
     private TextField textField = new TextField();
     private JMenuBar menuBar = new JMenuBar();
 
-    JButton buttons[] = new JButton[8];
+    JButton buttons[] = new JButton[9];
     JButton numbers[] = new JButton[10];
     private JButton addButton , subButton, mulButton , divButton;
-    private JButton dotButton, clearButton , deleteButton,equalsButton;
+    private JButton dotButton, clearButton , deleteButton,equalsButton,percentButton;
     int defaultFontSize = 25;
     private Font myFont = new Font("Times New Roman",Font.BOLD,defaultFontSize);
 
@@ -27,16 +27,16 @@ public class Calculator implements ActionListener {
 
 
     public JMenu createFileMenu() {
-       JMenu menu = new JMenu("File");
-       JMenuItem item = new JMenuItem("Exit");
-       item.addActionListener(new ActionListener() {
-           @Override
-           public void actionPerformed(ActionEvent e) {
-               System.exit(0);
-           }
-       });
-       menu.add(item);
-       return menu;
+        JMenu menu = new JMenu("File");
+        JMenuItem item = new JMenuItem("Exit");
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+        menu.add(item);
+        return menu;
     }
 
     public void setButtonFont()
@@ -282,9 +282,10 @@ public class Calculator implements ActionListener {
         mulButton = new JButton("*");
         divButton = new JButton("/");
         dotButton = new JButton(".");
-        clearButton = new JButton("clear");
-        deleteButton = new JButton("delete");
+        clearButton = new JButton("Clear");
+        deleteButton = new JButton("Delete");
         equalsButton = new JButton("=");
+        percentButton = new JButton("%");
 
 
 
@@ -298,9 +299,10 @@ public class Calculator implements ActionListener {
         buttons[5]= clearButton;
         buttons[6]= deleteButton;
         buttons[7]= equalsButton;
+        buttons[8]=percentButton;
 
 
-        for (int i= 0 ;i<8;i++)
+        for (int i= 0 ;i<9;i++)
         {
             buttons[i].addActionListener(this);
             buttons[i].setFocusPainted(false);
@@ -317,6 +319,7 @@ public class Calculator implements ActionListener {
 
         panel2.add(deleteButton);
         panel2.add(clearButton);
+        panel2.add(equalsButton);
         panel.add(numbers[1]);
         panel.add(numbers[2]);
         panel.add(numbers[3]);
@@ -329,9 +332,9 @@ public class Calculator implements ActionListener {
         panel.add(numbers[8]);
         panel.add(numbers[9]);
         panel.add(mulButton);
-        //panel.add(deleteButton);
+        panel.add(percentButton);
         panel.add(numbers[0]);
-        panel.add(equalsButton);
+        panel.add(dotButton);
         panel.add(divButton);
 
 
@@ -352,12 +355,9 @@ public class Calculator implements ActionListener {
             {
                 textField.setText(textField.getText().concat(String.valueOf(i)));
             }
-            if (e.getSource() == dotButton)
-            {
-                textField.setText(textField.getText().concat(String.valueOf(".")));
-            }
             if (e.getSource() == addButton)
             {
+                System.out.println(textField.getText());
                 num1 = Double.parseDouble(textField.getText());
                 System.out.println("Number 1 "+num1);
                 operator='+';
@@ -382,6 +382,14 @@ public class Calculator implements ActionListener {
                 num1 = Double.parseDouble(textField.getText());
                 System.out.println("Number 1 "+num1);
                 operator='/';
+                textField.setText("");
+            }
+
+            if (e.getSource() == percentButton)
+            {
+                num1 = Double.parseDouble(textField.getText());
+                System.out.println("Number 1 "+num1);
+                operator='%';
                 textField.setText("");
             }
 
@@ -411,8 +419,23 @@ public class Calculator implements ActionListener {
                         result=num1/num2;
                         break;
                     }
+                    case '%':
+                    {
+                        result = (num1/100)*num2;
+                        break;
+                    }
                 }
-                textField.setText(String.valueOf(result));
+
+                int check = (int) result;
+                if (check<result)
+                {
+                    textField.setText(String.valueOf(result));
+                }
+                else
+                {
+                    textField.setText(String.valueOf(check));
+                }
+
                 num2=result;
                 break;
             }
@@ -421,10 +444,10 @@ public class Calculator implements ActionListener {
             {
                 textField.setText("");
             }
-
-
-
-
+        }
+        if (e.getSource() == dotButton)
+        {
+            textField.setText(textField.getText()+".");
         }
         if (e.getSource()== clearButton)
         {
