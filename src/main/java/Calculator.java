@@ -4,7 +4,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.PreparedStatement;
+import java.util.Scanner;
 
 public class Calculator implements ActionListener {
 
@@ -14,21 +18,37 @@ public class Calculator implements ActionListener {
     private TextField textField = new TextField();
     private JMenuBar menuBar = new JMenuBar();
 
+
     JButton buttons[] = new JButton[10];
     JButton numbers[] = new JButton[10];
-    private JButton addButton , subButton, mulButton , divButton;
-    private JButton dotButton, clearButton , deleteButton,equalsButton,percentButton,signButton;
+    private JButton addButton , subButton, mulButton , divButton, dotButton, clearButton , deleteButton,equalsButton,percentButton,signButton;
+
     int defaultFontSize = 25;
     private Font myFont = new Font("Times New Roman",Font.BOLD,defaultFontSize);
 
     char operator;
     double num1,num2;
     double result;
+    String history;
 
+    public void writeToFile()
+    {
+        try{
+            FileWriter mywWriter = new FileWriter("History.txt");
+            String write = num1 +" "+ operator+" "+num2+" = "+result+"\n";
+            mywWriter.write(write);
+            mywWriter.close();
+            System.out.println("History saved : "+write);
+        } catch (Exception e) {
+            System.out.println("ERROR");
+            e.printStackTrace();
+        }
+    }
 
 
     public JMenu createFileMenu() {
         JMenu menu = new JMenu("File");
+        JMenuItem historyItem = new JMenuItem("History");
         JMenuItem item = new JMenuItem("Exit");
         item.addActionListener(new ActionListener() {
             @Override
@@ -36,6 +56,66 @@ public class Calculator implements ActionListener {
                 System.exit(0);
             }
         });
+        historyItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame frame = new JFrame("History");
+                JTextArea historyArea = new JTextArea();
+                JButton clearButton = new JButton("Clear History");
+                JPanel historyPanel = new JPanel();
+                try{
+                    File historyFile = new File("History.txt");
+                    Scanner reader = new Scanner(historyFile);
+                    while (reader.hasNextLine())
+                    {
+                        if (history==null)
+                            history = reader.nextLine()+"\n";
+                        else if (history == "Use calculator to add to history" )
+                            history=null;
+                        else
+                            history = history + reader.nextLine()+"\n";
+                    }
+                    reader.close();
+                } catch (Exception ex) {
+                    System.out.println("ERROR in Reading");
+                    ex.printStackTrace();
+                }
+
+                clearButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+
+                        try {
+                            System.out.println("CALLED");
+                            FileWriter clear = new FileWriter("History.txt");
+                            clear.write("");
+                            clear.close();
+                            history=null;
+                            historyArea.setText(history);
+                        } catch (IOException ex) {
+                            System.out.println("ERROR erasing history");
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+
+                if (history == null)
+                {
+                    history = "Use calculator to add to history";
+                }
+
+                historyArea.setText(history);
+                historyArea.setEditable(false);
+                frame.setSize(420,200);
+                frame.add(historyPanel);
+                historyPanel.setLayout(new GridLayout(2,1));
+                historyPanel.add(historyArea);
+                historyPanel.add(clearButton);
+                frame.setVisible(true);
+
+            }
+        });
+        menu.add(historyItem);
         menu.add(item);
         return menu;
     }
@@ -232,9 +312,11 @@ public class Calculator implements ActionListener {
         JMenu menu = new JMenu("Font");
         JMenuItem increase = new JMenuItem("Increase size");
         JMenuItem decrease = new JMenuItem("Decrease size");
-        menu.add(increase);
-        menu.add(decrease);
+        JMenu size = new JMenu("Size");
 
+        size.add(increase);
+        size.add(decrease);
+        menu.add(size);
         increase.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -425,6 +507,7 @@ public class Calculator implements ActionListener {
                     }
                 }
                 textField.setText(String.valueOf(result) );
+                writeToFile();
                 num2=result;
                 break;
             }
